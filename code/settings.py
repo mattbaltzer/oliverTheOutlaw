@@ -1,5 +1,5 @@
 import pygame, sys
-from pygame.math import Vector2 as vector
+from pygame import Vector2 as vector
 
 window_width, window_height = 1280, 720
 tile_size = 64
