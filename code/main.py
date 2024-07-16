@@ -2,6 +2,7 @@ from settings import *
 from level import Level
 from pytmx.util_pygame import load_pygame
 from os.path import join
+from support import *
 
 class Game:
     def __init__(self):
@@ -9,9 +10,24 @@ class Game:
         self.display_surface = pygame.display.set_mode((window_width,window_height))
         pygame.display.set_caption('Oliver the Outlaw')
         self.clock = pygame.time.Clock()
+        self.import_assets()
 
         self.tmx_maps = {0: load_pygame(join('.','data','levels','omni.tmx'))}
-        self.current_stage = Level(self.tmx_maps[0])
+        self.current_stage = Level(self.tmx_maps[0], self.level_frames)
+
+    def import_assets(self):
+        self.level_frames = {
+            'flag': import_folder('.','graphics','level','flag'),
+            'saw': import_folder('.', 'graphics', 'enemies', 'saw', 'animation'),
+            'floor_spike': import_folder('.', 'graphics', 'enemies', 'floor_spikes'),
+            'palms': import_sub_folders('.', 'graphics', 'level', 'palms'),
+            'candle': import_folder('.', 'graphics', 'level', 'candle'),
+            'window': import_folder(',', 'graphics', 'level', 'window'),
+            'big_chain': import_folder(',', 'graphics', 'level', 'big_chains'),
+            'small_chain': import_folder('.', 'graphics', 'level', 'small_chains'),
+            'candle_light': import_folder('.', 'graphics', 'level', 'candle_light'),
+            'player': import_sub_folders('.', 'graphics', 'player')
+        }
 
     def run(self):
         while True:
