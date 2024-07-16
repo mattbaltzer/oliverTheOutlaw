@@ -11,6 +11,7 @@ class Level:
         self.all_sprites = AllSprites()
         self.collision_sprites = pygame.sprite.Group()
         self.semicollidable_sprites = pygame.sprite.Group()
+        self.damage_sprites = pygame.sprite.Group()
 
         self.setup(tmx_map, level_frames)
     
@@ -46,7 +47,11 @@ class Level:
 
         # moving objects
         for obj in tmx_map.get_layer_by_name('Moving Objects'):
-            if obj.name == 'helicopter':
+            if obj.name == 'spike':
+                pass
+            else:
+                frames = level_frames[obj.name]
+                groups =  (self.all_sprites, self.semicollidable_sprites) if obj.properties['platform'] else (self.all_sprites, self.damage_sprites)
                 if obj.width > obj.height: # horizontal movement
                     move_dir = 'x'
                     start_pos = (obj.x, obj.y + obj.height / 2)
@@ -56,7 +61,14 @@ class Level:
                     start_pos = (obj.x + obj.width / 2, obj.y)
                     end_pos = (obj.x + obj.width / 2, obj.y + obj.height)
                 speed = obj.properties['speed']
-                MovingSprite((self.all_sprites, self.semicollidable_sprites), start_pos, end_pos, move_dir, speed)
+                MovingSprite(frames, groups, start_pos, end_pos, move_dir, speed)
+
+                if obj.name == 'saw':
+                    if move_dir == 'x':
+                        y = start_pos[1] - level_frames['saw_chain'].get_height() / 2
+                        left, right = int(start_pos[0]), int(end_pos[0])
+                        for x in range(left, right, 20):
+                            Sprite((x,y), level_frames['saw_chain'], self.all_sprites, z = z_layers['bg details'])
                 
     def run(self, dt):
         self.display_surface.fill('black')
