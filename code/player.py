@@ -6,6 +6,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, pos, groups, collision_sprites, semicollidable_sprites):
         super().__init__(groups)
         self.image = pygame.image.load(join('.', 'graphics', 'player', 'idle', '0.png'))
+        self.z = z_layers['main']
 
         # rectangles
         self.rect = self.image.get_frect(topleft = pos)
@@ -32,7 +33,7 @@ class Player(pygame.sprite.Sprite):
         self.timers = {
             'wall jump': Timer(400),
             'wall slide': Timer(250),
-            'platform fall': Timer(250)
+            'platform fall': Timer(100)
         }
 
     def input(self):
@@ -113,19 +114,19 @@ class Player(pygame.sprite.Sprite):
             if sprite.rect.colliderect(self.hitbox_rect):
                 if axis == 'horizontal':
                     # left side
-                    if self.hitbox_rect.left <= sprite.rect.right and int(self.old_rect.left) >= sprite.old_rect.right:
+                    if self.hitbox_rect.left <= sprite.rect.right and int(self.old_rect.left) >= int(sprite.old_rect.right):
                         self.hitbox_rect.left = sprite.rect.right 
                     # right side
-                    if self.hitbox_rect.right >= sprite.rect.left and int(self.old_rect.right) <= sprite.old_rect.left:
+                    if self.hitbox_rect.right >= sprite.rect.left and int(self.old_rect.right) <= int(sprite.old_rect.left):
                         self.hitbox_rect.right = sprite.rect.left
                 else:
                     # top 
-                    if self.hitbox_rect.top <= sprite.rect.bottom and int(self.old_rect.top) >= sprite.old_rect.bottom:
+                    if self.hitbox_rect.top <= sprite.rect.bottom and int(self.old_rect.top) >= int(sprite.old_rect.bottom):
                         self.hitbox_rect.top = sprite.rect.bottom
                         if hasattr(sprite, 'moving'):
                             self.hitbox_rect.top += 6
                     # bottom
-                    if self.hitbox_rect.bottom >= sprite.rect.top and int(self.old_rect.bottom) <= sprite.old_rect.top:
+                    if self.hitbox_rect.bottom >= sprite.rect.top and int(self.old_rect.bottom) <= int(sprite.old_rect.top):
                         self.hitbox_rect.bottom = sprite.rect.top
                     self.direction.y = 0
 
