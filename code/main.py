@@ -37,6 +37,7 @@ class Game:
             'shell': import_sub_folders('.', 'graphics', 'enemies', 'shell'),
             'pearl': import_image('.', 'graphics', 'enemies', 'bullets', 'pearl'),
             'items': import_sub_folders('.', 'graphics', 'items'),
+            'particle': import_folder('.', 'graphics', 'effects', 'particle'),
         }
 
     def run(self):
