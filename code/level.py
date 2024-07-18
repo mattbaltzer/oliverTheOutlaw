@@ -1,5 +1,5 @@
 from settings import *
-from sprites import Sprite, AnimatedSprite, MovingSprite
+from sprites import Sprite, AnimatedSprite, MovingSprite, Spike
 from player import Player
 from groups import AllSprites
 
@@ -48,7 +48,26 @@ class Level:
         # moving objects
         for obj in tmx_map.get_layer_by_name('Moving Objects'):
             if obj.name == 'spike':
-                pass
+                Spike(
+                    pos = (obj.x + obj.width, obj.y + obj.height),
+                    surf = level_frames['spike'],
+                    radius = obj.properties['radius'],
+                    speed = obj.properties['speed'],
+                    start_angle = obj.properties['start_angle'],
+                    end_angle = obj.properties['end_angle'],
+                    groups = (self.all_sprites, self.damage_sprites)
+                )
+                for radius in range(0, obj.properties['radius'], 20):
+                    Spike(
+                    pos = (obj.x + obj.width, obj.y + obj.height),
+                    surf = level_frames['spike_chain'],
+                    radius = radius,
+                    speed = obj.properties['speed'],
+                    start_angle = obj.properties['start_angle'],
+                    end_angle = obj.properties['end_angle'],
+                    groups = self.all_sprites,
+                    z = z_layers['bg details'],
+                )
             else:
                 frames = level_frames[obj.name]
                 groups =  (self.all_sprites, self.semicollidable_sprites) if obj.properties['platform'] else (self.all_sprites, self.damage_sprites)
@@ -61,13 +80,18 @@ class Level:
                     start_pos = (obj.x + obj.width / 2, obj.y)
                     end_pos = (obj.x + obj.width / 2, obj.y + obj.height)
                 speed = obj.properties['speed']
-                MovingSprite(frames, groups, start_pos, end_pos, move_dir, speed)
+                MovingSprite(frames, groups, start_pos, end_pos, move_dir, speed, obj.properties['flip'])
 
                 if obj.name == 'saw':
                     if move_dir == 'x':
                         y = start_pos[1] - level_frames['saw_chain'].get_height() / 2
                         left, right = int(start_pos[0]), int(end_pos[0])
                         for x in range(left, right, 20):
+                            Sprite((x,y), level_frames['saw_chain'], self.all_sprites, z = z_layers['bg details'])
+                    else:
+                        x = start_pos[0] - level_frames['saw_chain'].get_width() / 2
+                        top, bottom = int(start_pos[1]), int(end_pos[1])
+                        for y in range(top, bottom, 20):
                             Sprite((x,y), level_frames['saw_chain'], self.all_sprites, z = z_layers['bg details'])
                 
     def run(self, dt):

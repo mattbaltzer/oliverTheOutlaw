@@ -1,6 +1,7 @@
 from pygame import Surface
 from pygame.sprite import Group
 from settings import *
+from math import sin, cos, radians
 
 class Sprite(pygame.sprite.Sprite):
     def __init__(self, pos, surf = pygame.Surface((tile_size, tile_size)), groups = None, z = z_layers['main']):
@@ -24,7 +25,7 @@ class AnimatedSprite(Sprite):
         self.animate(dt)
 
 class MovingSprite(AnimatedSprite):
-    def __init__(self, frames, groups, start_pos, end_pos, move_dir, speed):
+    def __init__(self, frames, groups, start_pos, end_pos, move_dir, speed, flip = False):
         super().__init__(start_pos, frames, groups)
         if move_dir == 'x':
             self.rect.midleft = start_pos
@@ -40,6 +41,9 @@ class MovingSprite(AnimatedSprite):
         self.direction = vector(1,0) if move_dir == 'x' else vector(0,1)
         self.move_dir = move_dir
 
+        self.flip = flip
+        self.reverse = {'x': False, 'y': False}
+
     def check_border(self):
         if self.move_dir == 'x':
             if self.rect.right >= self.end_pos[0] and self.direction.x == 1:
@@ -48,6 +52,7 @@ class MovingSprite(AnimatedSprite):
             if self.rect.right <= self.start_pos[0] and self.direction.x == -1:
                 self.direction.x = 1
                 self.rect.right = self.start_pos[0]
+            self.reverse['x'] = True if self.direction.x < 0 else False
         else:
             if self.rect.bottom >= self.end_pos[1] and self.direction.y == 1:
                 self.direction.y = -1
@@ -55,6 +60,7 @@ class MovingSprite(AnimatedSprite):
             if self.rect.top <= self.start_pos[1] and self.direction.y == -1:
                 self.direction.y = 1
                 self.rect.top = self.start_pos[1]
+            self.reverse['y'] = True if self.direction.y > 0 else False
 
     def update(self, dt):
         self.old_rect = self.rect.copy()
@@ -62,3 +68,35 @@ class MovingSprite(AnimatedSprite):
         self.check_border()
 
         self.animate(dt)
+        if self.flip:
+            self.image = pygame.transform.flip(self.image, self.reverse['x'], self.reverse['y'])
+
+class Spike(Sprite):
+    def __init__(self, pos, surf, groups, radius, speed, start_angle, end_angle, z = z_layers['main']):
+        self.center = pos
+        self.radius = radius
+        self.speed = speed
+        self.start_angle = start_angle
+        self.end_angle = end_angle
+        self.angle = self.start_angle
+        self.direction = 1
+        self.full_circle = True if self.end_angle == -1 else False
+
+        # Trigonometry
+        y = self.center[1] + sin(radians(self.angle)) * self.radius
+        x = self.center[0] + cos(radians(self.angle)) * self.radius
+
+        super().__init__((x, y), surf, groups, z)
+
+    def update(self, dt):
+        self.angle += self.direction * self.speed * dt
+
+        if not self.full_circle:
+            if self.angle >= self.end_angle:
+                self.direction = -1
+            if self.angle < self.start_angle:
+                self.direction = 1
+
+        y = self.center[1] + sin(radians(self.angle)) * self.radius
+        x = self.center[0] + cos(radians(self.angle)) * self.radius
+        self.rect.center = (x,y)
