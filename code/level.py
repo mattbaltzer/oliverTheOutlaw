@@ -5,8 +5,9 @@ from groups import AllSprites
 from enemies import Tooth, Shell, Pearl
 
 class Level:
-    def __init__(self, tmx_map, level_frames):
+    def __init__(self, tmx_map, level_frames, data):
         self.display_surface = pygame.display.get_surface()
+        self.data = data
 
         # groups
         self.all_sprites = AllSprites()
@@ -44,7 +45,9 @@ class Level:
                     groups = self.all_sprites, 
                     collision_sprites = self.collision_sprites, 
                     semicollidable_sprites = self.semicollidable_sprites,
-                    frames = level_frames['player'])
+                    frames = level_frames['player'],
+                    data = self.data
+                    )
             else:
                 if obj.name in ('barrel', 'crate'):
                     Sprite((obj.x, obj.y), obj.image, (self.all_sprites, self.collision_sprites))
@@ -131,7 +134,7 @@ class Level:
     def hit_collision(self):
         for sprite in self.damage_sprites:
             if sprite.rect.colliderect(self.player.hitbox_rect):
-                print('player damage')
+                self.player.get_damage()
                 if hasattr(sprite, 'pearl'):
                     sprite.kill()
                     ParticleEffectSprite((sprite.rect.center), self.particle_frames, self.all_sprites)
@@ -142,6 +145,13 @@ class Level:
             if item_sprites:
                 ParticleEffectSprite((item_sprites[0].rect.center), self.particle_frames, self.all_sprites)
 
+    def attack_collision(self):
+        for target in self.pearl_sprites.sprites() + self.tooth_sprites.sprites():
+            facing_target = self.player.rect.centerx < target.rect.centerx and self.player.facing_right or \
+                            self.player.rect.centerx > target.rect.centerx and not self.player.facing_right
+            if target.rect.colliderect(self.player.rect) and self.player.attacking and facing_target:
+                target.reverse()
+
     def run(self, dt):
         self.display_surface.fill('black')
         
@@ -149,5 +159,6 @@ class Level:
         self.pearl_collision()
         self.hit_collision()
         self.item_collision()
+        self.attack_collision()
 
         self.all_sprites.draw(self.player.hitbox_rect.center)
