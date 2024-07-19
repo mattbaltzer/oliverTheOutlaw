@@ -5,6 +5,7 @@ from os.path import join
 from support import *
 from data import Data
 from debug import debug
+from ui import UI
 
 class Game:
     def __init__(self):
@@ -14,7 +15,8 @@ class Game:
         self.clock = pygame.time.Clock()
         self.import_assets()
 
-        self.data = Data()
+        self.ui = UI(self.font, self.ui_frames)
+        self.data = Data(self.ui)
         self.tmx_maps = {0: load_pygame(join('.','data','levels','omni.tmx'))}
         self.current_stage = Level(self.tmx_maps[0], self.level_frames, self.data)
 
@@ -43,6 +45,12 @@ class Game:
             'particle': import_folder('.', 'graphics', 'effects', 'particle'),
         }
 
+
+        self.font = pygame.font.Font(join('.', 'graphics', 'ui', 'runescape_uf.ttf'), 40)
+        self.ui_frames = {
+            'heart': import_folder('.', 'graphics', 'ui', 'heart'),
+        }
+
     def run(self):
         while True:
             dt = self.clock.tick() / 1000
@@ -52,7 +60,7 @@ class Game:
                     sys.exit()
 
             self.current_stage.run(dt)
-            debug(self.data.health)
+            self.ui.update(dt)
             pygame.display.update()
 
 if __name__ == '__main__':

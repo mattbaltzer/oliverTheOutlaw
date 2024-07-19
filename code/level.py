@@ -3,6 +3,7 @@ from sprites import Sprite, AnimatedSprite, MovingSprite, Spike, Item, ParticleE
 from player import Player
 from groups import AllSprites
 from enemies import Tooth, Shell, Pearl
+from random import uniform
 
 class Level:
     def __init__(self, tmx_map, level_frames, data):
@@ -37,6 +38,15 @@ class Level:
                     case _: z = z_layers['main']
                 Sprite((x * tile_size,y * tile_size),surf,groups, z)
         
+        # bg details
+        for obj in tmx_map.get_layer_by_name('BG details'):
+            if obj.name == 'static':
+                Sprite((obj.x, obj.y), obj.image, self.all_sprites, z = z_layers['bg tiles'])
+            else:
+                AnimatedSprite((obj.x, obj.y), level_frames[obj.name], self.all_sprites, z=z_layers['bg tiles'])
+                if obj.name == 'candle':
+                    AnimatedSprite((obj.x, obj.y) + vector(-20,-20), level_frames['candle_light'], self.all_sprites, z_layers['bg tiles'])
+
         # objects
         for obj in tmx_map.get_layer_by_name('Objects'):
             if obj.name == 'player':
@@ -52,9 +62,21 @@ class Level:
                 if obj.name in ('barrel', 'crate'):
                     Sprite((obj.x, obj.y), obj.image, (self.all_sprites, self.collision_sprites))
                 else:
-                    if 'palm' not in obj.name:
-                        frames = level_frames[obj.name]
-                        AnimatedSprite((obj.x, obj.y), frames, self.all_sprites, z, animation_speed)
+                    # frames
+                    frames = level_frames[obj.name] if not 'palm' in obj.name else level_frames['palms'][obj.name]
+                    if obj.name == 'floor_spike' and obj.properties['inverted']:
+                        frames = [pygame.transform.flip(frame, False, True) for frame in frames]
+                    # groups
+                    groups = [self.all_sprites]
+                    if obj.name in('palm_small', 'palm_large'): groups.append(self.semicollidable_sprites)
+                    if obj.name in('saw', 'floor_spike'): groups.append(self.damage_sprites)
+
+                    # z index
+                    z = z_layers['main'] if not 'bg' in obj.name else z_layers['bg details']
+                    
+                    # animation speed
+                    animate_speed = animation_speed if not 'palm' in obj.name else animation_speed + uniform(-1, 1)
+                    AnimatedSprite((obj.x, obj.y), frames, groups, z, animate_speed)
 
         # moving objects
         for obj in tmx_map.get_layer_by_name('Moving Objects'):
@@ -120,7 +142,7 @@ class Level:
 
         # items
         for obj in tmx_map.get_layer_by_name('Items'):
-            Item(obj.name, (obj.x + tile_size / 2, obj.y + tile_size / 2), level_frames['items'][obj.name], (self.all_sprites, self.item_sprites))
+            Item(obj.name, (obj.x + tile_size / 2, obj.y + tile_size / 2), level_frames['items'][obj.name], (self.all_sprites, self.item_sprites), self.data)
 
     def create_pearl(self, pos, direction):
         Pearl(pos, (self.all_sprites, self.damage_sprites, self.pearl_sprites), self.pearl_surf, direction, 150)
@@ -143,6 +165,7 @@ class Level:
         if self.item_sprites:
             item_sprites = pygame.sprite.spritecollide(self.player, self.item_sprites, True)
             if item_sprites:
+                item_sprites[0].activate()
                 ParticleEffectSprite((item_sprites[0].rect.center), self.particle_frames, self.all_sprites)
 
     def attack_collision(self):
