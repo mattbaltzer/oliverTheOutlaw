@@ -43,6 +43,8 @@ class Game:
             'pearl': import_image('.', 'graphics', 'enemies', 'bullets', 'pearl'),
             'items': import_sub_folders('.', 'graphics', 'items'),
             'particle': import_folder('.', 'graphics', 'effects', 'particle'),
+            'water_top': import_folder('.', 'graphics', 'level', 'water', 'top'),
+            'water_body': import_image('.', 'graphics', 'level', 'water', 'body'),
         }
 
 
@@ -64,7 +66,6 @@ class Game:
             self.ui.update(dt)
 
             pygame.display.update()
-            print(self.data.health)
 
 if __name__ == '__main__':
     game = Game()
