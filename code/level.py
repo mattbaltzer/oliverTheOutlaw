@@ -44,10 +44,11 @@ class Level:
             if obj.name == 'static':
                 Sprite((obj.x, obj.y), obj.image, self.all_sprites, z = z_layers['bg tiles'])
             else:
-                AnimatedSprite((obj.x, obj.y), level_frames['window'], self.all_sprites, z=z_layers['bg tiles'])
+                AnimatedSprite((obj.x, obj.y), level_frames[obj.name], self.all_sprites, z=z_layers['bg tiles'])
+                print(len(level_frames[obj.name]))
                 print("else line:",obj.name)
                 if obj.name == 'candle':
-                    AnimatedSprite((obj.x, obj.y) + vector(-20,-20), level_frames['candle light'], self.all_sprites, z_layers['bg tiles'])
+                    AnimatedSprite((obj.x, obj.y) + vector(-20,-20), level_frames['candle_light'], self.all_sprites, z_layers['bg tiles'])
 
         # objects
         for obj in tmx_map.get_layer_by_name('Objects'):
