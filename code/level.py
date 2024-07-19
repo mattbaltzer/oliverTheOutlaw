@@ -44,8 +44,10 @@ class Level:
                 Sprite((obj.x, obj.y), obj.image, self.all_sprites, z = z_layers['bg tiles'])
             else:
                 AnimatedSprite((obj.x, obj.y), level_frames[obj.name], self.all_sprites, z=z_layers['bg tiles'])
-                if obj.name == 'candle':
-                    AnimatedSprite((obj.x, obj.y) + vector(-20,-20), level_frames['candle_light'], self.all_sprites, z_layers['bg tiles'])
+                print("first one:",obj.name)
+                # if obj.name == 'candle':
+                #     AnimatedSprite((obj.x, obj.y) + vector(-20,-20), level_frames['candle_light'], self.all_sprites, z_layers['bg tiles'])
+                #     print("second one:", obj.name)
 
         # objects
         for obj in tmx_map.get_layer_by_name('Objects'):
