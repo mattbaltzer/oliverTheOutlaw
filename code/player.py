@@ -154,7 +154,7 @@ class Player(pygame.sprite.Sprite):
     def semi_collision(self):
         if not self.timers['platform fall'].active:
             for sprite in self.semicollidable_sprites:
-                if sprite.rect.colliderect(self.rect):
+                if sprite.rect.colliderect(self.hitbox_rect):
                     if self.hitbox_rect.bottom >= sprite.rect.top and int(self.old_rect.bottom) <= sprite.old_rect.top:
                             self.hitbox_rect.bottom = sprite.rect.top
                             if self.direction.y > 0:
