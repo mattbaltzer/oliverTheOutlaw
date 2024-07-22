@@ -5,6 +5,9 @@ class Data:
         self._health = 5
         self.ui.create_hearts(self._health)
 
+        self.unlocked_level = 0
+        self.current_level = 0
+
     # Decorators, a getter and a setter
     @property
     def health(self):
