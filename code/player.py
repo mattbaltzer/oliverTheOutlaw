@@ -46,6 +46,16 @@ class Player(pygame.sprite.Sprite):
             'hit': Timer(400),
         }
 
+        # audio
+        # self.attack_sound = audio_files['attack']
+        # self.attack_sound.set_volume(.025)
+        # self.jump_sound = audio_files['jump']
+        # self.jump_sound.set_volume(.025)
+        # self.hit_sound = audio_files['hit']
+        # self.hit_sound.set_volume(.025)
+        # self.damage_sound = audio_files['damage']
+        # self.damage_sound.set_volume(.025)
+
     def input(self):
         keys = pygame.key.get_pressed()
         input_vector = vector()
@@ -64,12 +74,14 @@ class Player(pygame.sprite.Sprite):
 
             if keys[pygame.K_LSHIFT]:
                 self.attack()
+                # self.attack_sound.play()
 
             self.direction.x = input_vector.normalize().x if input_vector else 0
 
 
         if keys[pygame.K_SPACE]:
             self.jump = True
+            # self.jump_sound.play()
 
     def attack(self):
         if not self.timers['attack block'].active:
@@ -193,6 +205,7 @@ class Player(pygame.sprite.Sprite):
         if not self.timers['hit'].active:
             self.data.health -= 1
             self.timers['hit'].activate()
+            # self.damage_sound.play()
 
     def flicker(self):
         if self.timers['hit'].active and sin(pygame.time.get_ticks() * 200) >= 0:

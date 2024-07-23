@@ -114,7 +114,7 @@
   <object id="12" name="palm_small" gid="222" x="384" y="768" width="80" height="103"/>
   <object id="13" name="palm_small" gid="222" x="1088" y="896" width="80" height="103"/>
   <object id="14" name="palm_small" gid="222" x="896" y="896" width="80" height="103"/>
-  <object id="15" name="player" gid="223" x="3321.41" y="647.453" width="74" height="56"/>
+  <object id="15" name="player" gid="223" x="3300.19" y="635.332" width="74" height="56"/>
   <object id="27" name="palm_bg" gid="217" x="768" y="448" width="128" height="128"/>
   <object id="43" name="palm_bg_left" gid="228" x="64" y="960" width="104" height="106"/>
   <object id="44" name="palm_bg_right" gid="229" x="640" y="896" width="104" height="106"/>
@@ -202,7 +202,7 @@
  <objectgroup id="6" name="Enemies">
   <object id="36" name="shell" gid="224" x="64" y="448" width="76" height="46">
    <properties>
-    <property name="reverse" type="bool" value="true"/>
+    <property name="reverse" type="bool" value="false"/>
    </properties>
   </object>
   <object id="39" name="shell" gid="224" x="2176" y="384" width="76" height="46">
