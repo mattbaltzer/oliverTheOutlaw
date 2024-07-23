@@ -4,7 +4,7 @@ from os.path import join
 from math import sin
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, groups, collision_sprites, semicollidable_sprites, frames, data):
+    def __init__(self, pos, groups, collision_sprites, semicollidable_sprites, frames, data, attack_sound, jump_sound):
         # general setup
         super().__init__(groups)
         self.z = z_layers['main']
@@ -47,10 +47,10 @@ class Player(pygame.sprite.Sprite):
         }
 
         # audio
-        # self.attack_sound = audio_files['attack']
-        # self.attack_sound.set_volume(.025)
-        # self.jump_sound = audio_files['jump']
-        # self.jump_sound.set_volume(.025)
+        self.attack_sound = attack_sound
+        self.attack_sound.set_volume(.025)
+        self.jump_sound = jump_sound
+        self.jump_sound.set_volume(.015)
         # self.hit_sound = audio_files['hit']
         # self.hit_sound.set_volume(.025)
         # self.damage_sound = audio_files['damage']
@@ -74,20 +74,20 @@ class Player(pygame.sprite.Sprite):
 
             if keys[pygame.K_LSHIFT]:
                 self.attack()
-                # self.attack_sound.play()
+                
 
             self.direction.x = input_vector.normalize().x if input_vector else 0
 
 
         if keys[pygame.K_SPACE]:
-            self.jump = True
-            # self.jump_sound.play()
+            self.jump = True           
 
     def attack(self):
         if not self.timers['attack block'].active:
             self.attacking = True
             self.frame_index = 0
             self.timers['attack block'].activate()
+            self.attack_sound.play()
 
     def move(self, dt):
         # horizontal
@@ -109,10 +109,12 @@ class Player(pygame.sprite.Sprite):
                 self.direction.y = -self.jump_height
                 self.timers['wall slide'].activate()
                 self.hitbox_rect.bottom -= 1
+                self.jump_sound.play()
             elif any((self.on_surface['left'], self.on_surface['right'])) and not self.timers['wall slide'].active:
                 self.timers['wall jump'].activate()
                 self.direction.y = -self.jump_height
                 self.direction.x = 1 if self.on_surface['left'] else -1
+                self.jump_sound.play()
             self.jump = False
         self.collision('vertical')
         self.semi_collision()

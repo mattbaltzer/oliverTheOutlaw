@@ -37,7 +37,7 @@ class Level:
         self.pearl_sprites = pygame.sprite.Group()
         self.item_sprites = pygame.sprite.Group()
 
-        self.setup(tmx_map, level_frames)
+        self.setup(tmx_map, level_frames, audio_files)
 
         # export level frames
         self.pearl_surf = level_frames['pearl']
@@ -51,7 +51,7 @@ class Level:
         self.pearl_sound = audio_files['pearl']
         self.pearl_sound.set_volume(.1)
     
-    def setup(self, tmx_map, level_frames):
+    def setup(self, tmx_map, level_frames, audio_files):
         # tiles
         for layer in ['BG', 'Terrain', 'FG', 'Platforms']:
             for x, y, surf in tmx_map.get_layer_by_name(layer).tiles():
@@ -82,7 +82,9 @@ class Level:
                     collision_sprites = self.collision_sprites, 
                     semicollidable_sprites = self.semicollidable_sprites,
                     frames = level_frames['player'],
-                    data = self.data
+                    data = self.data,
+                    attack_sound = audio_files['attack'],
+                    jump_sound = audio_files['jump']
                     )
             else:
                 if obj.name in ('barrel', 'crate'):
@@ -219,7 +221,7 @@ class Level:
                             self.player.rect.centerx > target.rect.centerx and not self.player.facing_right
             if target.rect.colliderect(self.player.rect) and self.player.attacking and facing_target:
                 target.reverse()
-                self.attack_sound.play()
+                
 
     def check_constraint(self):
         # left and right constaints
