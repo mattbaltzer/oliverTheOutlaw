@@ -1,12 +1,13 @@
 from settings import *
-from sprites import Sprite, AnimatedSprite, Node, Icon
+from sprites import Sprite, AnimatedSprite, Node, Icon, PathSprite
 from groups import WorldSprites
 from random import randint
 
 class Overworld:
-    def __init__(self, tmx_map, data, overworld_frames):
+    def __init__(self, tmx_map, data, overworld_frames, switch_stage):
         self.display_surface = pygame.display.get_surface()
         self.data = data
+        self.switch_stage = switch_stage
 
         # groups
         self.all_sprites = WorldSprites(data)
@@ -14,9 +15,10 @@ class Overworld:
 
         self.setup(tmx_map, overworld_frames)
 
-        self.create_path_sprites()
-
         self.current_node = [node for node in self.node_sprites if node.level == 0][0]
+
+        self.path_frames = overworld_frames['path']
+        self.create_path_sprites()
 
     def setup(self, tmx_map, overworld_frames):
         # tiles
@@ -83,15 +85,47 @@ class Overworld:
 
                 if path_dir.y:
                     dir_y = 1 if path_dir.y > 0 else -1 # checks if player is going up or down
-                    for y in range(dir_y, int(path_dir.y) + dir_y): # starts at 1 and counts upwards until 3, without including it
+                    for y in range(dir_y, int(path_dir.y) + dir_y, dir_y): # starts at 1 and counts upwards until 3, without including it
                         path_tiles[path_id].append(start_tile + vector(0, y)) # specifies the direction to move, down in this case
 
                 if path_dir.x: # same as above, but checks the horizontal movement
                     dir_x = 1 if path_dir.x > 0 else -1
-                    for x in range(dir_x, int(path_dir.x) + dir_x):
+                    for x in range(dir_x, int(path_dir.x) + dir_x, dir_x):
                         path_tiles[path_id].append(start_tile + vector(x, 0))
 
             path_tiles[path_id].append(end_node)
+
+        # create path sprites
+        for key, path in path_tiles.items():
+            # checks the relationship between each tile
+            for index, tile in enumerate(path):
+                if index > 0 and index < len(path) - 1:
+                    prev_tile = path[index - 1] - tile
+                    next_tile = path[index + 1] - tile
+
+                    if prev_tile.x == next_tile.x:
+                        surf = self.path_frames['vertical']
+                    elif prev_tile.y == next_tile.y:
+                        surf = self.path_frames['horizontal']
+                    else:
+                        if prev_tile.x == -1 and next_tile.y == -1 or prev_tile.y == -1 and next_tile.x == -1:
+                            surf = self.path_frames['tl']
+                        elif prev_tile.x == 1 and next_tile.y == 1 or prev_tile.y == 1 and next_tile.x == 1:
+                            surf = self.path_frames['br']
+                        elif prev_tile.x == -1 and next_tile.y == 1 or prev_tile.y == 1 and next_tile.x == -1:
+                            surf = self.path_frames['bl']
+                        elif prev_tile.x == 1 and next_tile.y == -1 or prev_tile.y == -1 and next_tile.x == 1:
+                            surf = self.path_frames['tr']
+                        else:
+                            surf = self.path_frames['horizontal']
+                        
+
+
+                    PathSprite(
+                        pos = (tile.x * tile_size, tile.y * tile_size), # tiles are in a grid, multipling by size converts them into pixels
+                        surf = surf, 
+                        groups = self.all_sprites, 
+                        level = key)
 
     def input(self):
         keys = pygame.key.get_pressed()
@@ -104,6 +138,9 @@ class Overworld:
                 self.move('right')
             if keys[pygame.K_w] and self.current_node.can_move('up'):
                 self.move('up')
+            if keys[pygame.K_SPACE]:
+                self.data.current_level = self.current_node.level
+                self.switch_stage('level')
     
     def move(self, direction):
         path_key = int(self.current_node.paths[direction][0])

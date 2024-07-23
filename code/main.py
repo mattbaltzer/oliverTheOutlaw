@@ -18,10 +18,29 @@ class Game:
 
         self.ui = UI(self.font, self.ui_frames)
         self.data = Data(self.ui)
-        self.tmx_maps = {0: load_pygame(join('.','data','levels','omni.tmx'))}
+        self.tmx_maps = {
+            0: load_pygame(join('.','data','levels','0.tmx')),
+            1: load_pygame(join('.','data','levels','1.tmx')),
+            2: load_pygame(join('.','data','levels','2.tmx')),
+            3: load_pygame(join('.','data','levels','3.tmx')),
+            4: load_pygame(join('.','data','levels','4.tmx')),
+            5: load_pygame(join('.','data','levels','5.tmx')),
+            6: load_pygame(join('.','data','levels','6.tmx')),
+            }
         self.tmx_overworld = load_pygame(join('.','data','overworld','overworld.tmx'))
-        # self.current_stage = Level(self.tmx_maps[0], self.level_frames, self.data)
-        self.current_stage = Overworld(self.tmx_overworld, self.data, self.overworld_frames)
+        self.current_stage = Level(self.tmx_maps[self.data.current_level], self.level_frames, self.data, self.switch_stage)
+
+    def switch_stage(self, target, unlock = 0):
+        if target == 'level':
+            self.current_stage = Level(self.tmx_maps[self.data.current_level], self.level_frames, self.data, self.switch_stage)
+            
+        else: # sends to overworld
+            if unlock > 0:
+                self.data.unlocked_level = unlock
+            else:
+                self.data.health = -1
+            self.current_stage = Overworld(self.tmx_overworld, self.data, self.overworld_frames, self.switch_stage)
+
 
     def import_assets(self):
         self.level_frames = {
